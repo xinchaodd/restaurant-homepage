@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>우리쌀국수</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <section id="intro">
+    <h1>우리쌀국수</h1>
+    <p>정통 베트남의 맛, 직접 만든 쌀국수로 느껴보세요.</p>
+    <button type="button">메뉴 보러가기</button>
+    <img src="viet-restaurant.png" alt="베트남 레스토랑 이미지" />
+  </section>
+
+  <section id="menu">
+    <h2>대표 메뉴</h2>
+    <div class="menu-list">
+      <div class="menu-item">
+        <img src="pho-combo.png" alt="소고기/닭고기/해산물 쌀국수 3종" />
+        <h3>3종 쌀국수</h3>
+        <p>소고기, 닭고기, 해산물 쌀국수를 한눈에!</p>
+      </div>
+      <div class="menu-item">
+        <img src="pho-roll.png" alt="쌀국수와 후레쉬롤 세트" />
+        <h3>쌀국수 + 후레쉬 롤</h3>
+        <p>신선한 롤과 쌀국수를 함께 즐기는 베트남 세트</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="story">
+    <h2>브랜드 스토리</h2>
+    <div class="story-content">
+      <img src="brand-story.png" alt="브랜드 감성 이미지" />
+      <div class="text">
+        <p>
+          우리의 쌀국수는 단순한 한 그릇의 음식이 아닙니다.  
+          베트남 전통 방식으로 정성껏 끓여낸 육수,  
+          건강한 재료, 직접 만든 면발까지.  
+          한 끼의 온기와 이야기를 담은 쌀국수를 전합니다.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="factory">
+    <h2>제조 시설</h2>
+    <div class="factory-content">
+      <img src="factory-kitchen.png" alt="제조시설 이미지" />
+      <div class="text">
+        <p>
+          저희는 원재료부터 조리까지 전 과정을 직접 관리합니다.  
+          위생적인 제조 설비와 체계적인 관리로, 언제나 안전한 식사를 제공하기 위해 노력합니다.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="kakao-map">
+    <h2>가까운 매장 찾기</h2>
+    <div class="map-wrapper">
+      <div id="map" style="width: 100%; height: 400px;"></div>
+      <div class="search-area">
+        <input type="text" id="keyword" placeholder="지역 또는 매장명 입력" />
+        <button type="button" onclick="searchPlaces()">검색</button>
+        <ul id="placesList"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="stores">
+    <h2>신규 매장을 소개합니다</h2>
+    <div class="store-cards">
+      <div class="store-card">
+        <img src="store1.png" alt="풍국면 매장 사진" />
+        <div class="info">
+          <h3>우리쌀국수 동성로점</h3>
+          <p class="date">24.04.01 오픈</p>
+          <p class="address">대구 중구 동성로3길 15</p>
+          <p class="phone">053-123-4567</p>
+          <button type="button">자세히 보기</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ✅ Kakao Maps SDK (onload 콜백 방식 적용) -->
+  <script>
+    let map, ps, markers = [];
+
+    function kakaoMapInit() {
+      const container = document.getElementById('map');
+      const options = {
+        center: new kakao.maps.LatLng(35.8714, 128.6014),
+        level: 3,
+      };
+      map = new kakao.maps.Map(container, options);
+      ps = new kakao.maps.services.Places();
+    }
+
+    function searchPlaces() {
+      if (!ps) {
+        alert("지도가 아직 준비되지 않았습니다.");
+        return;
+      }
+      const keyword = document.getElementById('keyword').value;
+      if (!keyword.trim()) return alert("검색어를 입력하세요.");
+      ps.keywordSearch(keyword, placesSearchCB);
+    }
+
+    function placesSearchCB(data, status) {
+      if (status === kakao.maps.services.Status.OK) {
+        displayPlaces(data);
+      } else {
+        alert("검색 결과가 없습니다.");
+      }
+    }
+
+    function displayPlaces(places) {
+      const listEl = document.getElementById("placesList");
+      listEl.innerHTML = '';
+      removeMarkers();
+      places.forEach(place => {
+        const li = document.createElement("li");
+        li.textContent = `${place.place_name} (${place.address_name})`;
+        listEl.appendChild(li);
+
+        const marker = new kakao.maps.Marker({
+          map: map,
+          position: new kakao.maps.LatLng(place.y, place.x),
+        });
+        markers.push(marker);
+      });
+    }
+
+    function removeMarkers() {
+      markers.forEach(marker => marker.setMap(null));
+      markers = [];
+    }
+
+    // 카카오맵 SDK onload 콜백 지정
+    window.kakaoMapInit = kakaoMapInit;
+  </script>
+
+  <!-- SDK 로드 (onload로 초기화 함수 지정) -->
+  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=e7958a7e60d5a42a6f8f515249b06d2a&libraries=services&autoload=true&onload=kakaoMapInit"></script>
+
+</body>
+</html>
